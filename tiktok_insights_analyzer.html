@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Analytics Pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0b;
+            color: #ffffff;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            padding: 60px 0 40px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #a0a0a0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #888;
+            font-weight: 400;
+        }
+
+        .main-content {
+            padding: 60px 0;
+        }
+
+        .upload-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #ffffff;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .upload-area.dragover {
+            border-color: #4f46e5;
+            background: rgba(79, 70, 229, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.6;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .upload-subtext {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .file-input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .uploaded-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .image-preview {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .image-remove {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 12px;
+            margin-bottom: 12px;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
+        }
+
+        .analysis-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .analysis-section.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .metric-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #ffffff, #a0a0a0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #888;
+            font-weight: 500;
+        }
+
+        .table-container {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            margin-bottom: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .analysis-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .analysis-card h4 {
+            color: #ffffff;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .trend-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 3px solid #4f46e5;
+        }
+
+        .recommendation {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.1));
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .recommendation h5 {
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+            color: #22c55e;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-left: 2px solid #4f46e5;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .upload-area {
+                padding: 24px;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            table {
+                font-size: 0.8rem;
+            }
+            
+            th, td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>TikTok Analytics Pro</h1>
+            <p>画像からインサイトを自動解析</p>
+        </div>
+
+        <div class="main-content">
+            <div class="upload-section">
+                <h3 class="section-title">インサイト画像をアップロード</h3>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📊</div>
+                    <div class="upload-text">TikTokインサイトのスクリーンショットをドロップ</div>
+                    <div class="upload-subtext">または、クリックしてファイルを選択</div>
+                    <input type="file" class="file-input" id="fileInput" multiple accept="image/*">
+                </div>
+
+                <div class="uploaded-images" id="uploadedImages"></div>
+
+                <div style="margin-top: 24px;">
+                    <button class="btn" onclick="analyzeImages()">画像を解析</button>
+                    <button class="btn btn-secondary" onclick="loadSampleData()">サンプルデータ</button>
+                    <button class="btn btn-secondary" onclick="clearAll()">クリア</button>
+                </div>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>画像を解析中...</p>
+            </div>
+
+            <div id="analysisResults" class="analysis-section">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="totalPosts">0</div>
+                        <div class="metric-label">総投稿数</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="avgViews">0</div>
+                        <div class="metric-label">平均再生回数</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="avgEngagement">0%</div>
+                        <div class="metric-label">平均エンゲージメント率</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="bestPerformer">-</div>
+                        <div class="metric-label">最高パフォーマンス</div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="dataTable">
+                        <thead>
+                            <tr>
+                                <th>投稿日</th>
+                                <th>秒数</th>
+                                <th>再生回数</th>
+                                <th>平均視聴時間</th>
+                                <th>完了率</th>
+                                <th>ターゲット</th>
+                                <th>いいね</th>
+                                <th>保存</th>
+                                <th>シェア</th>
+                                <th>ENG率</th>
+                                <th>保存率</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="analysis-card">
+                    <h4>📈 パフォーマンス傾向分析</h4>
+                    <div id="trendAnalysis"></div>
+                </div>
+
+                <div class="analysis-card">
+                    <h4>💡 改善提案</h4>
+                    <div id="recommendations"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let postsData = [];
+        let uploadedFiles = [];
+
+        // ファイルアップロード機能
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const uploadedImagesContainer = document.getElementById('uploadedImages');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleDrop);
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = Array.from(e.dataTransfer.files);
+            addFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            addFiles(files);
+        }
+
+        function addFiles(files) {
+            files.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    uploadedFiles.push(file);
+                    displayImagePreview(file);
+                }
+            });
+        }
+
+        function displayImagePreview(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageDiv = document.createElement('div');
+                imageDiv.className = 'image-preview';
+                imageDiv.innerHTML = `
+                    <img src="${e.target.result}" alt="アップロード画像">
+                    <button class="image-remove" onclick="removeImage(this, '${file.name}')">×</button>
+                `;
+                uploadedImagesContainer.appendChild(imageDiv);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeImage(button, fileName) {
+            uploadedFiles = uploadedFiles.filter(file => file.name !== fileName);
+            button.parentElement.remove();
+        }
+
+        async function analyzeImages() {
+            if (uploadedFiles.length === 0) {
+                alert('分析する画像をアップロードしてください');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+            
+            // 実際のOCR処理をシミュレート（実装時はOCR APIを使用）
+            setTimeout(() => {
+                // サンプルデータで代替（実際の実装では画像からデータを抽出）
+                postsData = generateSampleDataFromImages(uploadedFiles.length);
+                
+                document.getElementById('loading').style.display = 'none';
+                analyzeData();
+            }, 2000);
+        }
+
+        function generateSampleDataFromImages(imageCount) {
+            const sampleData = [];
+            const targets = ['20代女性', '10代男性', '30代女性', '10代女性', '20代男性'];
+            
+            for (let i = 0; i < Math.min(imageCount * 2, 10); i++) {
+                const baseDate = new Date('2024-03-01');
+                baseDate.setDate(baseDate.getDate() + i * 3);
+                
+                sampleData.push({
+                    postDate: baseDate.toISOString().split('T')[0],
+                    videoDuration: 15 + Math.floor(Math.random() * 45),
+                    views: 50000 + Math.floor(Math.random() * 200000),
+                    avgWatchTime: 8 + Math.floor(Math.random() * 25),
+                    likes: 2000 + Math.floor(Math.random() * 15000),
+                    saves: 200 + Math.floor(Math.random() * 3000),
+                    shares: 100 + Math.floor(Math.random() * 800),
+                    targetAudience: targets[Math.floor(Math.random() * targets.length)]
+                });
+            }
+            
+            return sampleData;
+        }
+
+        function loadSampleData() {
+            postsData = [
+                {
+                    postDate: '2024-03-15',
+                    videoDuration: 30,
+                    views: 125000,
+                    avgWatchTime: 18,
+                    likes: 8500,
+                    saves: 1200,
+                    shares: 450,
+                    targetAudience: '20代女性'
+                },
+                {
+                    postDate: '2024-03-18',
+                    videoDuration: 15,
+                    views: 89000,
+                    avgWatchTime: 12,
+                    likes: 6200,
+                    saves: 2100,
+                    shares: 380,
+                    targetAudience: '10代男性'
+                },
+                {
+                    postDate: '2024-03-22',
+                    videoDuration: 45,
+                    views: 156000,
+                    avgWatchTime: 25,
+                    likes: 11200,
+                    saves: 1800,
+                    shares: 620,
+                    targetAudience: '20代女性'
+                },
+                {
+                    postDate: '2024-03-25',
+                    videoDuration: 25,
+                    views: 78000,
+                    avgWatchTime: 15,
+                    likes: 4200,
+                    saves: 890,
+                    shares: 220,
+                    targetAudience: '30代男性'
+                },
+                {
+                    postDate: '2024-03-28',
+                    videoDuration: 35,
+                    views: 203000,
+                    avgWatchTime: 28,
+                    likes: 15600,
+                    saves: 3200,
+                    shares: 890,
+                    targetAudience: '10代女性'
+                }
+            ];
+            
+            analyzeData();
+        }
+
+        function calculateMetrics(post) {
+            const completionRate = Math.min((post.avgWatchTime / post.videoDuration) * 100, 100);
+            const engagementRate = ((post.likes + post.saves + post.shares) / post.views) * 100;
+            const saveRate = (post.saves / post.views) * 100;
+            
+            return {
+                ...post,
+                completionRate: completionRate.toFixed(1),
+                engagementRate: engagementRate.toFixed(2),
+                saveRate: saveRate.toFixed(2)
+            };
+        }
+
+        function analyzeData() {
+            if (postsData.length === 0) {
+                alert('分析するデータがありません');
+                return;
+            }
+
+            const processedData = postsData.map(calculateMetrics);
+            
+            processedData.sort((a, b) => {
+                const scoreA = parseFloat(a.saveRate) + parseFloat(a.completionRate) + parseFloat(a.engagementRate);
+                const scoreB = parseFloat(b.saveRate) + parseFloat(b.completionRate) + parseFloat(b.engagementRate);
+                return scoreB - scoreA;
+            });
+
+            displayResults(processedData);
+            displayTrendAnalysis(processedData);
+            displayRecommendations(processedData);
+            
+            const analysisSection = document.getElementById('analysisResults');
+            analysisSection.classList.add('show');
+        }
+
+        function displayResults(data) {
+            document.getElementById('totalPosts').textContent = data.length;
+            document.getElementById('avgViews').textContent = Math.round(data.reduce((sum, p) => sum + p.views, 0) / data.length).toLocaleString();
+            document.getElementById('avgEngagement').textContent = (data.reduce((sum, p) => sum + parseFloat(p.engagementRate), 0) / data.length).toFixed(1) + '%';
+            document.getElementById('bestPerformer').textContent = data[0].postDate;
+
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            data.forEach(post => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${post.postDate}</td>
+                    <td>${post.videoDuration}秒</td>
+                    <td>${post.views.toLocaleString()}</td>
+                    <td>${post.avgWatchTime}秒</td>
+                    <td>${post.completionRate}%</td>
+                    <td>${post.targetAudience}</td>
+                    <td>${post.likes.toLocaleString()}</td>
+                    <td>${post.saves.toLocaleString()}</td>
+                    <td>${post.shares.toLocaleString()}</td>
+                    <td>${post.engagementRate}%</td>
+                    <td>${post.saveRate}%</td>
+                `;
+            });
+        }
+
+        function displayTrendAnalysis(data) {
+            const trendDiv = document.getElementById('trendAnalysis');
+            const topPosts = data.slice(0, 3);
+            
+            let analysis = '';
+            
+            const avgDuration = topPosts.reduce((sum, p) => sum + p.videoDuration, 0) / topPosts.length;
+            analysis += `<div class="trend-item"><strong>最適な動画尺:</strong> 上位投稿の平均は${avgDuration.toFixed(0)}秒。${avgDuration < 20 ? 'ショート動画' : avgDuration < 40 ? 'ミディアム動画' : 'ロング動画'}が効果的</div>`;
+            
+            const targets = topPosts.map(p => p.targetAudience);
+            const mostFrequentTarget = targets.reduce((a, b, i, arr) => 
+                arr.filter(v => v === a).length >= arr.filter(v => v === b).length ? a : b
+            );
+            analysis += `<div class="trend-item"><strong>効果的なターゲット層:</strong> ${mostFrequentTarget}の反応が良い傾向</div>`;
+            
+            const avgCompletionRate = topPosts.reduce((sum, p) => sum + parseFloat(p.completionRate), 0) / topPosts.length;
+            analysis += `<div class="trend-item"><strong>高パフォーマンス投稿の完了率:</strong> 平均${avgCompletionRate.toFixed(1)}%（${avgCompletionRate > 70 ? '非常に良好' : avgCompletionRate > 50 ? '良好' : '改善の余地あり'}）</div>`;
+            
+            trendDiv.innerHTML = analysis;
+        }
+
+        function displayRecommendations(data) {
+            const recDiv = document.getElementById('recommendations');
+            const topPost = data[0];
+            
+            let recommendations = '';
+            
+            if (topPost.videoDuration < 30) {
+                recommendations += `<div class="recommendation">
+                    <h5>1. 動画尺の最適化</h5>
+                    <p>最高パフォーマンスの投稿は${topPost.videoDuration}秒でした。15-30秒の短い動画で、冒頭3秒以内にフックを入れることを推奨します。</p>
+                </div>`;
+            } else {
+                recommendations += `<div class="recommendation">
+                    <h5>1. コンテンツ密度の向上</h5>
+                    <p>長尺動画（${topPost.videoDuration}秒）でも高パフォーマンスを記録。情報密度を高め、5秒ごとに新しい要素を追加することで視聴維持を図りましょう。</p>
+                </div>`;
+            }
+            
+            const avgSaveRate = data.reduce((sum, p) => sum + parseFloat(p.saveRate), 0) / data.length;
+            recommendations += `<div class="recommendation">
+                <h5>2. 保存率向上戦略</h5>
+                <p>現在の平均保存率は${avgSaveRate.toFixed(2)}%です。「保存して後で見る価値」のあるコンテンツ（チュートリアル、レシピ、ライフハック）を増やしましょう。</p>
+            </div>`;
+            
+            recommendations += `<div class="recommendation">
+                <h5>3. ターゲット層の最適化</h5>
+                <p>最高パフォーマンスのターゲット層「${topPost.targetAudience}」向けのコンテンツ比率を増やし、このセグメントが好む投稿時間帯（19-22時）を活用しましょう。</p>
+            </div>`;
+            
+            recDiv.innerHTML = recommendations;
+        }
+
+        function clearAll() {
+            if (confirm('すべてのデータをクリアしますか？')) {
+                postsData = [];
+                uploadedFiles = [];
+                uploadedImagesContainer.innerHTML = '';
+                document.getElementById('analysisResults').classList.remove('show');
+                fileInput.value = '';
+            }
+        }
+    </script>
+</body>
+</html>
