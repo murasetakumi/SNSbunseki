@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TikTok Analytics Pro</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
@@ -12,98 +14,185 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #0a0a0b;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
             color: #ffffff;
             line-height: 1.6;
             min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .background-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            background-image: 
+                radial-gradient(circle at 25% 25%, #ff0050 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, #00f5ff 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
         }
 
         .header {
-            padding: 60px 0 40px;
+            padding: 40px 0;
             text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(45deg, #ff0050, #ff4d6d);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            transform: rotate(-5deg);
+            box-shadow: 0 8px 32px rgba(255, 0, 80, 0.3);
         }
 
         .header h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #ffffff, #a0a0a0);
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff, #ff0050, #00f5ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             letter-spacing: -0.02em;
         }
 
         .header p {
             font-size: 1.1rem;
-            color: #888;
+            color: rgba(255, 255, 255, 0.7);
             font-weight: 400;
         }
 
         .main-content {
-            padding: 60px 0;
+            padding-bottom: 60px;
         }
 
         .upload-section {
             background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
             padding: 40px;
-            margin-bottom: 40px;
-            backdrop-filter: blur(10px);
-        }
-
-        .section-title {
-            font-size: 1.4rem;
-            font-weight: 600;
-            margin-bottom: 24px;
-            color: #ffffff;
-        }
-
-        .upload-area {
-            border: 2px dashed rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            padding: 40px;
-            text-align: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
+            margin-bottom: 32px;
+            backdrop-filter: blur(20px);
             position: relative;
             overflow: hidden;
         }
 
+        .upload-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 0, 80, 0.5), transparent);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(45deg, #ff0050, #ff4d6d);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 48px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(255, 0, 80, 0.1), transparent);
+            transition: all 0.4s ease;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+        }
+
         .upload-area:hover {
-            border-color: rgba(255, 255, 255, 0.4);
-            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 0, 80, 0.6);
+            background: rgba(255, 0, 80, 0.02);
+            transform: translateY(-2px);
+        }
+
+        .upload-area:hover::before {
+            width: 200px;
+            height: 200px;
         }
 
         .upload-area.dragover {
-            border-color: #4f46e5;
-            background: rgba(79, 70, 229, 0.1);
+            border-color: #ff0050;
+            background: rgba(255, 0, 80, 0.05);
+            transform: scale(1.02);
         }
 
         .upload-icon {
-            font-size: 3rem;
-            margin-bottom: 16px;
-            opacity: 0.6;
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.8;
+            filter: drop-shadow(0 4px 8px rgba(255, 0, 80, 0.3));
         }
 
         .upload-text {
-            font-size: 1.1rem;
+            font-size: 1.3rem;
             margin-bottom: 8px;
             color: #ffffff;
+            font-weight: 600;
         }
 
         .upload-subtext {
-            font-size: 0.9rem;
-            color: #888;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
         }
 
         .file-input {
@@ -115,55 +204,87 @@
 
         .uploaded-images {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 16px;
-            margin-top: 24px;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 32px;
         }
 
         .image-preview {
             position: relative;
-            border-radius: 8px;
+            border-radius: 16px;
             overflow: hidden;
             background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .image-preview:hover {
+            transform: translateY(-4px);
         }
 
         .image-preview img {
             width: 100%;
-            height: 150px;
+            height: 160px;
             object-fit: cover;
         }
 
         .image-remove {
             position: absolute;
-            top: 8px;
-            right: 8px;
-            background: rgba(0, 0, 0, 0.7);
+            top: 12px;
+            right: 12px;
+            background: rgba(0, 0, 0, 0.8);
             color: white;
             border: none;
             border-radius: 50%;
-            width: 24px;
-            height: 24px;
+            width: 32px;
+            height: 32px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .image-remove:hover {
+            background: #ff0050;
+            transform: scale(1.1);
         }
 
         .btn {
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            background: linear-gradient(135deg, #ff0050, #ff4d6d);
             color: white;
             border: none;
-            padding: 14px 28px;
-            border-radius: 8px;
+            padding: 16px 32px;
+            border-radius: 12px;
             font-size: 1rem;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-right: 12px;
-            margin-bottom: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-right: 16px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
         }
 
         .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(255, 0, 80, 0.4);
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn-secondary {
@@ -173,13 +294,21 @@
 
         .btn-secondary:hover {
             background: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 12px 40px rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-export {
+            background: linear-gradient(135deg, #00f5ff, #0099cc);
+        }
+
+        .btn-export:hover {
+            box-shadow: 0 12px 40px rgba(0, 245, 255, 0.4);
         }
 
         .analysis-section {
             opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.6s ease;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .analysis-section.show {
@@ -189,7 +318,7 @@
 
         .metrics-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 24px;
             margin-bottom: 40px;
         }
@@ -197,34 +326,51 @@
         .metric-card {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 24px;
+            border-radius: 20px;
+            padding: 32px 24px;
             text-align: center;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff0050, #00f5ff);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-4px);
         }
 
         .metric-value {
-            font-size: 2.2rem;
-            font-weight: 700;
+            font-size: 2.5rem;
+            font-weight: 800;
             margin-bottom: 8px;
-            background: linear-gradient(135deg, #ffffff, #a0a0a0);
+            background: linear-gradient(135deg, #ffffff, #ff0050);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
         .metric-label {
-            font-size: 0.9rem;
-            color: #888;
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.7);
             font-weight: 500;
         }
 
         .table-container {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
+            border-radius: 20px;
             overflow: hidden;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
             margin-bottom: 40px;
         }
 
@@ -236,7 +382,7 @@
         th {
             background: rgba(255, 255, 255, 0.05);
             color: #ffffff;
-            padding: 16px 12px;
+            padding: 20px 16px;
             text-align: left;
             font-weight: 600;
             font-size: 0.9rem;
@@ -244,67 +390,93 @@
         }
 
         td {
-            padding: 14px 12px;
+            padding: 16px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             font-size: 0.9rem;
         }
 
         tr:hover {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255, 0, 80, 0.02);
         }
 
         .analysis-card {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
+            border-radius: 20px;
             padding: 32px;
             margin-bottom: 24px;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
+            position: relative;
+        }
+
+        .analysis-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 0, 80, 0.5), transparent);
         }
 
         .analysis-card h4 {
             color: #ffffff;
-            margin-bottom: 20px;
-            font-size: 1.3rem;
-            font-weight: 600;
+            margin-bottom: 24px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .trend-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            border-left: 4px solid #ff0050;
+            transition: all 0.3s ease;
+        }
+
+        .trend-item:hover {
             background: rgba(255, 255, 255, 0.05);
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            border-left: 3px solid #4f46e5;
+            transform: translateX(4px);
         }
 
         .recommendation {
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.1));
-            border: 1px solid rgba(34, 197, 94, 0.2);
+            background: linear-gradient(135deg, rgba(0, 245, 255, 0.1), rgba(0, 153, 204, 0.1));
+            border: 1px solid rgba(0, 245, 255, 0.2);
             padding: 24px;
-            border-radius: 12px;
+            border-radius: 16px;
             margin-bottom: 16px;
+            position: relative;
         }
 
         .recommendation h5 {
             margin-bottom: 12px;
             font-size: 1.1rem;
-            color: #22c55e;
+            color: #00f5ff;
+            font-weight: 600;
         }
 
         .loading {
             display: none;
             text-align: center;
-            padding: 40px;
+            padding: 60px 40px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .spinner {
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-left: 2px solid #4f46e5;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-left: 3px solid #ff0050;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 16px;
+            margin: 0 auto 20px;
         }
 
         @keyframes spin {
@@ -312,17 +484,58 @@
             100% { transform: rotate(360deg); }
         }
 
+        .progress-bar {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            height: 8px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 0%;
+            background: linear-gradient(90deg, #ff0050, #00f5ff);
+            height: 100%;
+            border-radius: 8px;
+            transition: width 0.3s ease;
+        }
+
+        .ocr-section {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .ocr-output {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
         .hidden {
             display: none;
         }
 
         @media (max-width: 768px) {
+            .container {
+                padding: 0 16px;
+            }
+            
             .header h1 {
                 font-size: 2.2rem;
             }
             
             .upload-area {
-                padding: 24px;
+                padding: 32px 20px;
             }
             
             .metrics-grid {
@@ -334,53 +547,69 @@
             }
             
             th, td {
-                padding: 10px 8px;
+                padding: 12px 8px;
+            }
+            
+            .upload-section {
+                padding: 24px;
             }
         }
     </style>
 </head>
 <body>
+    <div class="background-pattern"></div>
+    
     <div class="container">
         <div class="header">
-            <h1>TikTok Analytics Pro</h1>
-            <p>画像からインサイトを自動解析</p>
+            <div class="logo">
+                <div class="logo-icon">T</div>
+                <div>
+                    <h1>TikTok Analytics Pro</h1>
+                    <p>プロフェッショナル インサイト分析ツール</p>
+                </div>
+            </div>
         </div>
 
         <div class="main-content">
             <div class="upload-section">
-                <h3 class="section-title">インサイト画像をアップロード</h3>
+                <h3 class="section-title">
+                    <div class="section-icon">📊</div>
+                    インサイト画像をアップロード
+                </h3>
                 
                 <div class="upload-area" id="uploadArea">
-                    <div class="upload-icon">📊</div>
+                    <div class="upload-icon">🎬</div>
                     <div class="upload-text">TikTokインサイトのスクリーンショットをドロップ</div>
-                    <div class="upload-subtext">または、クリックしてファイルを選択</div>
+                    <div class="upload-subtext">複数ファイル対応 • JPG, PNG形式</div>
                     <input type="file" class="file-input" id="fileInput" multiple accept="image/*">
                 </div>
 
                 <div class="uploaded-images" id="uploadedImages"></div>
 
-                <div style="margin-top: 24px;">
-                    <button class="btn" onclick="analyzeImages()">画像を解析</button>
-                    <button class="btn btn-secondary" onclick="loadSampleData()">サンプルデータ</button>
-                    <button class="btn btn-secondary" onclick="clearAll()">クリア</button>
-                </div>
-            </div>
-
-            <div class="upload-section" id="ocrSection" style="display: none;">
-                <h3 class="section-title">OCR抽出結果</h3>
-                <div style="margin-bottom: 16px;">
-                    <button class="btn btn-secondary" onclick="copyOcrResults()">📋 プロンプト用にコピー</button>
-                </div>
-                <div style="background: rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 16px; max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 0.9rem; line-height: 1.4;">
-                    <pre id="ocrOutput"></pre>
+                <div style="margin-top: 32px;">
+                    <button class="btn" onclick="analyzeImages()">🔍 画像を解析</button>
+                    <button class="btn btn-secondary" onclick="clearAll()">🗑️ クリア</button>
                 </div>
             </div>
 
             <div class="loading" id="loading">
                 <div class="spinner"></div>
                 <p id="loadingText">画像を解析中...</p>
-                <div id="progressBar" style="width: 100%; background: rgba(255,255,255,0.1); border-radius: 4px; height: 8px; margin-top: 16px;">
-                    <div id="progressFill" style="width: 0%; background: #4f46e5; height: 100%; border-radius: 4px; transition: width 0.3s ease;"></div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="ocr-section hidden" id="ocrSection">
+                <h3 class="section-title">
+                    <div class="section-icon">📄</div>
+                    OCR抽出結果
+                </h3>
+                <div style="margin-bottom: 16px;">
+                    <button class="btn btn-secondary" onclick="copyOcrResults()">📋 プロンプト用にコピー</button>
+                </div>
+                <div class="ocr-output">
+                    <pre id="ocrOutput"></pre>
                 </div>
             </div>
 
@@ -399,9 +628,13 @@
                         <div class="metric-label">平均エンゲージメント率</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value" id="bestPerformer">-</div>
-                        <div class="metric-label">最高パフォーマンス</div>
+                        <div class="metric-value" id="bestSaveRate">0%</div>
+                        <div class="metric-label">最高保存率</div>
                     </div>
+                </div>
+
+                <div style="margin-bottom: 24px; text-align: center;">
+                    <button class="btn btn-export" onclick="exportToExcel()">📊 Excelでダウンロード</button>
                 </div>
 
                 <div class="table-container">
@@ -440,6 +673,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.1/tesseract.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         let postsData = [];
         let uploadedFiles = [];
@@ -522,7 +756,7 @@
             try {
                 for (let i = 0; i < uploadedFiles.length; i++) {
                     const file = uploadedFiles[i];
-                    const progress = ((i + 1) / uploadedFiles.length) * 100;
+                    const progress = ((i) / uploadedFiles.length) * 100;
                     
                     document.getElementById('loadingText').textContent = `画像 ${i + 1}/${uploadedFiles.length} を処理中...`;
                     document.getElementById('progressFill').style.width = progress + '%';
@@ -533,12 +767,14 @@
                         text: ocrText
                     });
 
-                    // OCRテキストからデータを抽出
-                    const extractedData = extractDataFromOCR(ocrText);
-                    if (extractedData.length > 0) {
-                        postsData.push(...extractedData);
+                    // 1枚の画像から1つの投稿データを抽出
+                    const extractedData = extractSinglePostFromOCR(ocrText, i);
+                    if (extractedData) {
+                        postsData.push(extractedData);
                     }
                 }
+
+                document.getElementById('progressFill').style.width = '100%';
 
                 // OCR結果を表示
                 displayOcrResults();
@@ -562,7 +798,7 @@
             return new Promise((resolve, reject) => {
                 Tesseract.recognize(
                     file,
-                    'jpn+eng', // 日本語と英語の認識
+                    'jpn+eng',
                     {
                         logger: m => {
                             if (m.status === 'recognizing text') {
@@ -579,369 +815,51 @@
             });
         }
 
-        function extractDataFromOCR(ocrText) {
-            const extractedData = [];
-            
+        function extractSinglePostFromOCR(ocrText, index) {
             try {
-                // TikTokインサイトから数値を抽出するパターン
                 const lines = ocrText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
                 
-                let currentPost = {};
-                let foundMetrics = false;
+                // デフォルト値で初期化
+                let postData = {
+                    postDate: `2024-03-${(15 + index * 3).toString().padStart(2, '0')}`,
+                    videoDuration: 30,
+                    views: 100000,
+                    avgWatchTime: 18,
+                    likes: 5000,
+                    saves: 500,
+                    shares: 200,
+                    targetAudience: '20代女性',
+                    followers: 10000
+                };
 
-                for (let i = 0; i < lines.length; i++) {
-                    const line = lines[i];
-                    
-                    // 日付パターンを検索
+                for (let line of lines) {
+                    // 日付パターン
                     const dateMatch = line.match(/(\d{4})[\/\-年](\d{1,2})[\/\-月](\d{1,2})/);
                     if (dateMatch) {
-                        if (Object.keys(currentPost).length > 0) {
-                            extractedData.push(currentPost);
-                        }
-                        currentPost = {
-                            postDate: `${dateMatch[1]}-${dateMatch[2].padStart(2, '0')}-${dateMatch[3].padStart(2, '0')}`
-                        };
-                        foundMetrics = true;
+                        postData.postDate = `${dateMatch[1]}-${dateMatch[2].padStart(2, '0')}-${dateMatch[3].padStart(2, '0')}`;
                     }
 
-                    // 再生回数を検索 (例: "125.4K", "1.2M", "1,234")
-                    const viewsMatch = line.match(/(\d{1,3}(?:,\d{3})*|\d+\.?\d*[KMB]?)\s*(?:回|views?|再生)/i);
-                    if (viewsMatch && foundMetrics) {
-                        currentPost.views = parseNumber(viewsMatch[1]);
+                    // 再生回数
+                    const viewsMatch = line.match(/(\d+\.?\d*[KMB万億]?)\s*(?:回|views?|再生|play)/i);
+                    if (viewsMatch) {
+                        postData.views = parseNumber(viewsMatch[1]);
                     }
 
-                    // 動画秒数を検索 (例: "30s", "1:25", "45秒")
+                    // 動画時間
                     const durationMatch = line.match(/(\d+):(\d+)|(\d+)[s秒]/);
-                    if (durationMatch && foundMetrics) {
+                    if (durationMatch) {
                         if (durationMatch[1] && durationMatch[2]) {
-                            currentPost.videoDuration = parseInt(durationMatch[1]) * 60 + parseInt(durationMatch[2]);
+                            postData.videoDuration = parseInt(durationMatch[1]) * 60 + parseInt(durationMatch[2]);
                         } else if (durationMatch[3]) {
-                            currentPost.videoDuration = parseInt(durationMatch[3]);
+                            postData.videoDuration = parseInt(durationMatch[3]);
                         }
                     }
 
-                    // いいね数を検索
-                    const likesMatch = line.match(/(\d{1,3}(?:,\d{3})*|\d+\.?\d*[KMB]?)\s*(?:いいね|like|♡|❤)/i);
-                    if (likesMatch && foundMetrics) {
-                        currentPost.likes = parseNumber(likesMatch[1]);
+                    // いいね数
+                    const likesMatch = line.match(/(\d+\.?\d*[KMB万億]?)\s*(?:いいね|like|♡|❤)/i);
+                    if (likesMatch) {
+                        postData.likes = parseNumber(likesMatch[1]);
                     }
 
-                    // 保存数を検索
-                    const savesMatch = line.match(/(\d{1,3}(?:,\d{3})*|\d+\.?\d*[KMB]?)\s*(?:保存|save|bookmark)/i);
-                    if (savesMatch && foundMetrics) {
-                        currentPost.saves = parseNumber(savesMatch[1]);
-                    }
-
-                    // シェア数を検索
-                    const sharesMatch = line.match(/(\d{1,3}(?:,\d{3})*|\d+\.?\d*[KMB]?)\s*(?:シェア|share)/i);
-                    if (sharesMatch && foundMetrics) {
-                        currentPost.shares = parseNumber(sharesMatch[1]);
-                    }
-
-                    // 平均視聴時間を検索
-                    const avgTimeMatch = line.match(/平均.*?(\d+\.?\d*)[s秒]|視聴時間.*?(\d+\.?\d*)/);
-                    if (avgTimeMatch && foundMetrics) {
-                        currentPost.avgWatchTime = parseFloat(avgTimeMatch[1] || avgTimeMatch[2]);
-                    }
-
-                    // ターゲット層を検索
-                    const targetMatch = line.match(/(10代|20代|30代|40代|50代).*(男性|女性)|男性.*?(10代|20代|30代|40代|50代)|女性.*?(10代|20代|30代|40代|50代)/);
-                    if (targetMatch && foundMetrics) {
-                        const age = targetMatch[1] || targetMatch[3] || targetMatch[4];
-                        const gender = targetMatch[2] || (targetMatch[0].includes('男性') ? '男性' : '女性');
-                        currentPost.targetAudience = age + gender;
-                    }
-                }
-
-                // 最後の投稿を追加
-                if (Object.keys(currentPost).length > 0) {
-                    extractedData.push(currentPost);
-                }
-
-                // 不完全なデータを補完
-                return extractedData.map(post => ({
-                    postDate: post.postDate || '2024-03-15',
-                    videoDuration: post.videoDuration || 30,
-                    views: post.views || 100000,
-                    avgWatchTime: post.avgWatchTime || (post.videoDuration ? post.videoDuration * 0.6 : 18),
-                    likes: post.likes || Math.floor((post.views || 100000) * 0.05),
-                    saves: post.saves || Math.floor((post.views || 100000) * 0.01),
-                    shares: post.shares || Math.floor((post.views || 100000) * 0.002),
-                    targetAudience: post.targetAudience || '20代女性'
-                }));
-
-            } catch (error) {
-                console.error('データ抽出エラー:', error);
-                return [];
-            }
-        }
-
-        function parseNumber(str) {
-            if (!str) return 0;
-            
-            str = str.toString().replace(/,/g, '');
-            
-            if (str.includes('K') || str.includes('k')) {
-                return Math.floor(parseFloat(str) * 1000);
-            } else if (str.includes('M') || str.includes('m')) {
-                return Math.floor(parseFloat(str) * 1000000);
-            } else if (str.includes('B') || str.includes('b')) {
-                return Math.floor(parseFloat(str) * 1000000000);
-            }
-            
-            return parseInt(str) || 0;
-        }
-
-        function displayOcrResults() {
-            const ocrOutput = document.getElementById('ocrOutput');
-            const ocrSection = document.getElementById('ocrSection');
-            
-            let output = '=== OCR抽出結果 ===\n\n';
-            
-            ocrResults.forEach((result, index) => {
-                output += `【画像 ${index + 1}: ${result.fileName}】\n`;
-                output += result.text;
-                output += '\n\n' + '='.repeat(50) + '\n\n';
-            });
-
-            if (postsData.length > 0) {
-                output += '=== 抽出されたデータ ===\n\n';
-                postsData.forEach((post, index) => {
-                    output += `投稿 ${index + 1}:\n`;
-                    output += `- 投稿日: ${post.postDate}\n`;
-                    output += `- 動画秒数: ${post.videoDuration}秒\n`;
-                    output += `- 再生回数: ${post.views.toLocaleString()}\n`;
-                    output += `- 平均視聴時間: ${post.avgWatchTime}秒\n`;
-                    output += `- いいね数: ${post.likes.toLocaleString()}\n`;
-                    output += `- 保存数: ${post.saves.toLocaleString()}\n`;
-                    output += `- シェア数: ${post.shares.toLocaleString()}\n`;
-                    output += `- ターゲット層: ${post.targetAudience}\n\n`;
-                });
-            }
-
-            ocrOutput.textContent = output;
-            ocrSection.style.display = 'block';
-        }
-
-        function copyOcrResults() {
-            const ocrOutput = document.getElementById('ocrOutput');
-            const textToCopy = `以下は、TikTokのインサイト画面をOCRで読み取ったテキストです。
-この情報をもとに、次のように分析してください。
-
-【お願いしたいこと】
-1. 表形式に整えて、以下のようなカラムで表示してください：
-- 投稿日
-- 動画の秒数
-- 再生回数
-- 平均視聴時間
-- フル視聴率
-- 一番多いターゲット
-- いいね数
-- 保存数
-- シェア数
-- フォロワー数
-- ENG率
-- 離脱秒数・コメント
-
-2. 各投稿について、保存率・完了率・ENG率の高い順に並べてください。
-3. 上位の投稿の傾向を分析してください（例：尺、冒頭の構成、離脱秒数、ターゲット層など）
-4. 最後に、今後伸ばすための改善提案（3つ）をください。
-
-【OCRで読み取ったインサイト情報】
-
-${ocrOutput.textContent}`;
-
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                alert('プロンプト用テキストをコピーしました！Claudeに貼り付けて分析を依頼してください。');
-            }).catch(err => {
-                console.error('コピーに失敗しました:', err);
-                alert('コピーに失敗しました。テキストを手動で選択してコピーしてください。');
-            });
-        }
-
-        function loadSampleData() {
-            postsData = [
-                {
-                    postDate: '2024-03-15',
-                    videoDuration: 30,
-                    views: 125000,
-                    avgWatchTime: 18,
-                    likes: 8500,
-                    saves: 1200,
-                    shares: 450,
-                    targetAudience: '20代女性'
-                },
-                {
-                    postDate: '2024-03-18',
-                    videoDuration: 15,
-                    views: 89000,
-                    avgWatchTime: 12,
-                    likes: 6200,
-                    saves: 2100,
-                    shares: 380,
-                    targetAudience: '10代男性'
-                },
-                {
-                    postDate: '2024-03-22',
-                    videoDuration: 45,
-                    views: 156000,
-                    avgWatchTime: 25,
-                    likes: 11200,
-                    saves: 1800,
-                    shares: 620,
-                    targetAudience: '20代女性'
-                },
-                {
-                    postDate: '2024-03-25',
-                    videoDuration: 25,
-                    views: 78000,
-                    avgWatchTime: 15,
-                    likes: 4200,
-                    saves: 890,
-                    shares: 220,
-                    targetAudience: '30代男性'
-                },
-                {
-                    postDate: '2024-03-28',
-                    videoDuration: 35,
-                    views: 203000,
-                    avgWatchTime: 28,
-                    likes: 15600,
-                    saves: 3200,
-                    shares: 890,
-                    targetAudience: '10代女性'
-                }
-            ];
-            
-            analyzeData();
-        }
-
-        function calculateMetrics(post) {
-            const completionRate = Math.min((post.avgWatchTime / post.videoDuration) * 100, 100);
-            const engagementRate = ((post.likes + post.saves + post.shares) / post.views) * 100;
-            const saveRate = (post.saves / post.views) * 100;
-            
-            return {
-                ...post,
-                completionRate: completionRate.toFixed(1),
-                engagementRate: engagementRate.toFixed(2),
-                saveRate: saveRate.toFixed(2)
-            };
-        }
-
-        function analyzeData() {
-            if (postsData.length === 0) {
-                alert('分析するデータがありません');
-                return;
-            }
-
-            const processedData = postsData.map(calculateMetrics);
-            
-            processedData.sort((a, b) => {
-                const scoreA = parseFloat(a.saveRate) + parseFloat(a.completionRate) + parseFloat(a.engagementRate);
-                const scoreB = parseFloat(b.saveRate) + parseFloat(b.completionRate) + parseFloat(b.engagementRate);
-                return scoreB - scoreA;
-            });
-
-            displayResults(processedData);
-            displayTrendAnalysis(processedData);
-            displayRecommendations(processedData);
-            
-            const analysisSection = document.getElementById('analysisResults');
-            analysisSection.classList.add('show');
-        }
-
-        function displayResults(data) {
-            document.getElementById('totalPosts').textContent = data.length;
-            document.getElementById('avgViews').textContent = Math.round(data.reduce((sum, p) => sum + p.views, 0) / data.length).toLocaleString();
-            document.getElementById('avgEngagement').textContent = (data.reduce((sum, p) => sum + parseFloat(p.engagementRate), 0) / data.length).toFixed(1) + '%';
-            document.getElementById('bestPerformer').textContent = data[0].postDate;
-
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = '';
-            
-            data.forEach(post => {
-                const row = tbody.insertRow();
-                row.innerHTML = `
-                    <td>${post.postDate}</td>
-                    <td>${post.videoDuration}秒</td>
-                    <td>${post.views.toLocaleString()}</td>
-                    <td>${post.avgWatchTime}秒</td>
-                    <td>${post.completionRate}%</td>
-                    <td>${post.targetAudience}</td>
-                    <td>${post.likes.toLocaleString()}</td>
-                    <td>${post.saves.toLocaleString()}</td>
-                    <td>${post.shares.toLocaleString()}</td>
-                    <td>${post.engagementRate}%</td>
-                    <td>${post.saveRate}%</td>
-                `;
-            });
-        }
-
-        function displayTrendAnalysis(data) {
-            const trendDiv = document.getElementById('trendAnalysis');
-            const topPosts = data.slice(0, 3);
-            
-            let analysis = '';
-            
-            const avgDuration = topPosts.reduce((sum, p) => sum + p.videoDuration, 0) / topPosts.length;
-            analysis += `<div class="trend-item"><strong>最適な動画尺:</strong> 上位投稿の平均は${avgDuration.toFixed(0)}秒。${avgDuration < 20 ? 'ショート動画' : avgDuration < 40 ? 'ミディアム動画' : 'ロング動画'}が効果的</div>`;
-            
-            const targets = topPosts.map(p => p.targetAudience);
-            const mostFrequentTarget = targets.reduce((a, b, i, arr) => 
-                arr.filter(v => v === a).length >= arr.filter(v => v === b).length ? a : b
-            );
-            analysis += `<div class="trend-item"><strong>効果的なターゲット層:</strong> ${mostFrequentTarget}の反応が良い傾向</div>`;
-            
-            const avgCompletionRate = topPosts.reduce((sum, p) => sum + parseFloat(p.completionRate), 0) / topPosts.length;
-            analysis += `<div class="trend-item"><strong>高パフォーマンス投稿の完了率:</strong> 平均${avgCompletionRate.toFixed(1)}%（${avgCompletionRate > 70 ? '非常に良好' : avgCompletionRate > 50 ? '良好' : '改善の余地あり'}）</div>`;
-            
-            trendDiv.innerHTML = analysis;
-        }
-
-        function displayRecommendations(data) {
-            const recDiv = document.getElementById('recommendations');
-            const topPost = data[0];
-            
-            let recommendations = '';
-            
-            if (topPost.videoDuration < 30) {
-                recommendations += `<div class="recommendation">
-                    <h5>1. 動画尺の最適化</h5>
-                    <p>最高パフォーマンスの投稿は${topPost.videoDuration}秒でした。15-30秒の短い動画で、冒頭3秒以内にフックを入れることを推奨します。</p>
-                </div>`;
-            } else {
-                recommendations += `<div class="recommendation">
-                    <h5>1. コンテンツ密度の向上</h5>
-                    <p>長尺動画（${topPost.videoDuration}秒）でも高パフォーマンスを記録。情報密度を高め、5秒ごとに新しい要素を追加することで視聴維持を図りましょう。</p>
-                </div>`;
-            }
-            
-            const avgSaveRate = data.reduce((sum, p) => sum + parseFloat(p.saveRate), 0) / data.length;
-            recommendations += `<div class="recommendation">
-                <h5>2. 保存率向上戦略</h5>
-                <p>現在の平均保存率は${avgSaveRate.toFixed(2)}%です。「保存して後で見る価値」のあるコンテンツ（チュートリアル、レシピ、ライフハック）を増やしましょう。</p>
-            </div>`;
-            
-            recommendations += `<div class="recommendation">
-                <h5>3. ターゲット層の最適化</h5>
-                <p>最高パフォーマンスのターゲット層「${topPost.targetAudience}」向けのコンテンツ比率を増やし、このセグメントが好む投稿時間帯（19-22時）を活用しましょう。</p>
-            </div>`;
-            
-            recDiv.innerHTML = recommendations;
-        }
-
-        function clearAll() {
-            if (confirm('すべてのデータをクリアしますか？')) {
-                postsData = [];
-                uploadedFiles = [];
-                ocrResults = [];
-                uploadedImagesContainer.innerHTML = '';
-                document.getElementById('analysisResults').classList.remove('show');
-                document.getElementById('ocrSection').style.display = 'none';
-                fileInput.value = '';
-            }
-        }
-    </script>
-</body>
-</html>
+                    // 保存数
+                    const savesMatch = line.match(/(\d+\.?\d*[KMB万億]?)\s*(?:保存
