@@ -305,6 +305,14 @@
             box-shadow: 0 12px 40px rgba(0, 245, 255, 0.4);
         }
 
+        .btn-edit {
+            background: linear-gradient(135deg, #ffa500, #ff6347);
+        }
+
+        .btn-edit:hover {
+            box-shadow: 0 12px 40px rgba(255, 165, 0, 0.4);
+        }
+
         .analysis-section {
             opacity: 0;
             transform: translateY(30px);
@@ -363,6 +371,48 @@
             font-size: 0.95rem;
             color: rgba(255, 255, 255, 0.7);
             font-weight: 500;
+        }
+
+        .edit-mode {
+            background: rgba(255, 165, 0, 0.1);
+            border: 1px solid rgba(255, 165, 0, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .edit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .edit-field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .edit-field label {
+            font-size: 0.9rem;
+            color: #ffa500;
+            font-weight: 600;
+        }
+
+        .edit-field input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .edit-field input:focus {
+            outline: none;
+            border-color: #ffa500;
+            box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.2);
         }
 
         .table-container {
@@ -525,6 +575,16 @@
             display: none;
         }
 
+        .success-message {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.1));
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            font-weight: 500;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 0 16px;
@@ -540,6 +600,10 @@
             
             .metrics-grid {
                 grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .edit-grid {
+                grid-template-columns: 1fr;
             }
             
             table {
@@ -565,7 +629,7 @@
                 <div class="logo-icon">T</div>
                 <div>
                     <h1>TikTok Analytics Pro</h1>
-                    <p>プロフェッショナル インサイト分析ツール</p>
+                    <p>高精度 AI インサイト分析ツール</p>
                 </div>
             </div>
         </div>
@@ -580,21 +644,21 @@
                 <div class="upload-area" id="uploadArea">
                     <div class="upload-icon">🎬</div>
                     <div class="upload-text">TikTokインサイトのスクリーンショットをドロップ</div>
-                    <div class="upload-subtext">複数ファイル対応 • JPG, PNG形式</div>
+                    <div class="upload-subtext">高精度OCR • 複数ファイル対応 • JPG, PNG形式</div>
                     <input type="file" class="file-input" id="fileInput" multiple accept="image/*">
                 </div>
 
                 <div class="uploaded-images" id="uploadedImages"></div>
 
                 <div style="margin-top: 32px;">
-                    <button class="btn" onclick="analyzeImages()">🔍 画像を解析</button>
+                    <button class="btn" onclick="analyzeImages()">🔍 AI解析実行</button>
                     <button class="btn btn-secondary" onclick="clearAll()">🗑️ クリア</button>
                 </div>
             </div>
 
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p id="loadingText">画像を解析中...</p>
+                <p id="loadingText">AI画像解析中...</p>
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
@@ -610,6 +674,18 @@
                 </div>
                 <div class="ocr-output">
                     <pre id="ocrOutput"></pre>
+                </div>
+            </div>
+
+            <div class="edit-mode hidden" id="editMode">
+                <h3 class="section-title">
+                    <div class="section-icon">✏️</div>
+                    データ編集モード
+                </h3>
+                <div id="editContainer"></div>
+                <div style="margin-top: 16px;">
+                    <button class="btn btn-edit" onclick="saveEdits()">💾 変更を保存</button>
+                    <button class="btn btn-secondary" onclick="cancelEdit()">❌ キャンセル</button>
                 </div>
             </div>
 
@@ -635,6 +711,7 @@
 
                 <div style="margin-bottom: 24px; text-align: center;">
                     <button class="btn btn-export" onclick="exportToExcel()">📊 Excelでダウンロード</button>
+                    <button class="btn btn-edit" onclick="enterEditMode()">✏️ データを編集</button>
                 </div>
 
                 <div class="table-container">
@@ -678,6 +755,7 @@
         let postsData = [];
         let uploadedFiles = [];
         let ocrResults = [];
+        let editingData = [];
 
         // ファイルアップロード機能
         const uploadArea = document.getElementById('uploadArea');
@@ -740,6 +818,44 @@
             button.parentElement.remove();
         }
 
+        // 画像前処理関数
+        function preprocessImage(imageElement) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = imageElement.width;
+            canvas.height = imageElement.height;
+            
+            // 画像を描画
+            ctx.drawImage(imageElement, 0, 0);
+            
+            // 画像データを取得
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            
+            // コントラスト強化と二値化
+            for (let i = 0; i < data.length; i += 4) {
+                // グレースケール変換
+                const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+                
+                // コントラスト強化
+                const contrast = 1.5;
+                const enhancedGray = ((gray - 128) * contrast) + 128;
+                
+                // 二値化（閾値: 128）
+                const binaryValue = enhancedGray > 128 ? 255 : 0;
+                
+                data[i] = binaryValue;     // R
+                data[i + 1] = binaryValue; // G
+                data[i + 2] = binaryValue; // B
+            }
+            
+            // 処理済み画像データを canvas に戻す
+            ctx.putImageData(imageData, 0, 0);
+            
+            return canvas.toDataURL();
+        }
+
         async function analyzeImages() {
             if (uploadedFiles.length === 0) {
                 alert('分析する画像をアップロードしてください');
@@ -747,7 +863,7 @@
             }
 
             document.getElementById('loading').style.display = 'block';
-            document.getElementById('loadingText').textContent = 'OCR処理を開始中...';
+            document.getElementById('loadingText').textContent = 'AI画像解析を開始中...';
             document.getElementById('progressFill').style.width = '0%';
             
             ocrResults = [];
@@ -758,446 +874,5 @@
                     const file = uploadedFiles[i];
                     const progress = ((i) / uploadedFiles.length) * 100;
                     
-                    document.getElementById('loadingText').textContent = `画像 ${i + 1}/${uploadedFiles.length} を処理中...`;
-                    document.getElementById('progressFill').style.width = progress + '%';
-
-                    const ocrText = await performOCR(file);
-                    ocrResults.push({
-                        fileName: file.name,
-                        text: ocrText
-                    });
-
-                    // 1枚の画像から1つの投稿データを抽出
-                    const extractedData = extractSinglePostFromOCR(ocrText, i);
-                    if (extractedData) {
-                        postsData.push(extractedData);
-                    }
-                }
-
-                document.getElementById('progressFill').style.width = '100%';
-
-                // OCR結果を表示
-                displayOcrResults();
-                
-                document.getElementById('loading').style.display = 'none';
-                
-                if (postsData.length > 0) {
-                    analyzeData();
-                } else {
-                    alert('画像からデータを抽出できませんでした。TikTokインサイト画面のスクリーンショットをアップロードしてください。');
-                }
-
-            } catch (error) {
-                console.error('OCR処理でエラーが発生しました:', error);
-                document.getElementById('loading').style.display = 'none';
-                alert('画像の解析に失敗しました。別の画像を試してください。');
-            }
-        }
-
-        async function performOCR(file) {
-            return new Promise((resolve, reject) => {
-                Tesseract.recognize(
-                    file,
-                    'jpn+eng',
-                    {
-                        logger: m => {
-                            if (m.status === 'recognizing text') {
-                                const progress = Math.round(m.progress * 100);
-                                document.getElementById('loadingText').textContent = `OCR処理中: ${progress}%`;
-                            }
-                        }
-                    }
-                ).then(({ data: { text } }) => {
-                    resolve(text);
-                }).catch(error => {
-                    reject(error);
-                });
-            });
-        }
-
-        function extractSinglePostFromOCR(ocrText, index) {
-            try {
-                const lines = ocrText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-                
-                // デフォルト値で初期化
-                let postData = {
-                    postDate: `2024-03-${(15 + index * 3).toString().padStart(2, '0')}`,
-                    videoDuration: 30,
-                    views: 100000,
-                    avgWatchTime: 18,
-                    likes: 5000,
-                    saves: 500,
-                    shares: 200,
-                    targetAudience: '20代女性',
-                    followers: 10000
-                };
-
-                for (let line of lines) {
-                    // 日付パターン
-                    const dateMatch = line.match(/(\d{4})[\/\-年](\d{1,2})[\/\-月](\d{1,2})/);
-                    if (dateMatch) {
-                        postData.postDate = `${dateMatch[1]}-${dateMatch[2].padStart(2, '0')}-${dateMatch[3].padStart(2, '0')}`;
-                    }
-
-                    // 再生回数
-                    const viewsMatch = line.match(/(\d+\.?\d*[KMB万億]?)\s*(?:回|views?|再生|play)/i);
-                    if (viewsMatch) {
-                        postData.views = parseNumber(viewsMatch[1]);
-                    }
-
-                    // 動画時間
-                    const durationMatch = line.match(/(\d+):(\d+)|(\d+)[s秒]/);
-                    if (durationMatch) {
-                        if (durationMatch[1] && durationMatch[2]) {
-                            postData.videoDuration = parseInt(durationMatch[1]) * 60 + parseInt(durationMatch[2]);
-                        } else if (durationMatch[3]) {
-                            postData.videoDuration = parseInt(durationMatch[3]);
-                        }
-                    }
-
-                    // いいね数
-                    const likesMatch = line.match(/(\d+\.?\d*[KMB万億]?)\s*(?:いいね|like|♡|❤)/i);
-                    if (likesMatch) {
-                        postData.likes = parseNumber(likesMatch[1]);
-                    }
-
-                    // 保存数
-                    const savesMatch = line.match(/(\d+\.?\d*[KMB万億]?)\s*(?:保存|save|bookmark)/i);
-                    if (savesMatch) {
-                        postData.saves = parseNumber(savesMatch[1]);
-                    }
-
-                    // シェア数
-                    const sharesMatch = line.match(/(\d+\.?\d*[KMB万億]?)\s*(?:シェア|share)/i);
-                    if (sharesMatch) {
-                        postData.shares = parseNumber(sharesMatch[1]);
-                    }
-
-                    // 平均視聴時間
-                    const avgTimeMatch = line.match(/平均.*?(\d+\.?\d*)[s秒]|視聴時間.*?(\d+\.?\d*)/);
-                    if (avgTimeMatch) {
-                        postData.avgWatchTime = parseFloat(avgTimeMatch[1] || avgTimeMatch[2]);
-                    }
-
-                    // ターゲット層
-                    const targetMatch = line.match(/(10代|20代|30代|40代|50代).*(男性|女性)|男性.*?(10代|20代|30代|40代|50代)|女性.*?(10代|20代|30代|40代|50代)/);
-                    if (targetMatch) {
-                        const age = targetMatch[1] || targetMatch[3] || targetMatch[4];
-                        const gender = targetMatch[2] || (targetMatch[0].includes('男性') ? '男性' : '女性');
-                        postData.targetAudience = age + gender;
-                    }
-
-                    // フォロワー数
-                    const followersMatch = line.match(/(\d+\.?\d*[KMB万億]?)\s*(?:フォロワー|follower)/i);
-                    if (followersMatch) {
-                        postData.followers = parseNumber(followersMatch[1]);
-                    }
-                }
-
-                return postData;
-
-            } catch (error) {
-                console.error('データ抽出エラー:', error);
-                return null;
-            }
-        }
-
-        function parseNumber(str) {
-            if (!str) return 0;
-            
-            str = str.toString().replace(/,/g, '');
-            
-            if (str.includes('万')) {
-                return Math.floor(parseFloat(str) * 10000);
-            } else if (str.includes('億')) {
-                return Math.floor(parseFloat(str) * 100000000);
-            } else if (str.includes('K') || str.includes('k')) {
-                return Math.floor(parseFloat(str) * 1000);
-            } else if (str.includes('M') || str.includes('m')) {
-                return Math.floor(parseFloat(str) * 1000000);
-            } else if (str.includes('B') || str.includes('b')) {
-                return Math.floor(parseFloat(str) * 1000000000);
-            }
-            
-            return parseInt(str) || 0;
-        }
-
-        function displayOcrResults() {
-            const ocrOutput = document.getElementById('ocrOutput');
-            const ocrSection = document.getElementById('ocrSection');
-            
-            let output = '=== OCR抽出結果 ===\n\n';
-            
-            ocrResults.forEach((result, index) => {
-                output += `【画像 ${index + 1}: ${result.fileName}】\n`;
-                output += result.text;
-                output += '\n\n' + '='.repeat(50) + '\n\n';
-            });
-
-            if (postsData.length > 0) {
-                output += '=== 抽出されたデータ ===\n\n';
-                postsData.forEach((post, index) => {
-                    output += `投稿 ${index + 1}:\n`;
-                    output += `- 投稿日: ${post.postDate}\n`;
-                    output += `- 動画秒数: ${post.videoDuration}秒\n`;
-                    output += `- 再生回数: ${post.views.toLocaleString()}\n`;
-                    output += `- 平均視聴時間: ${post.avgWatchTime}秒\n`;
-                    output += `- いいね数: ${post.likes.toLocaleString()}\n`;
-                    output += `- 保存数: ${post.saves.toLocaleString()}\n`;
-                    output += `- シェア数: ${post.shares.toLocaleString()}\n`;
-                    output += `- ターゲット層: ${post.targetAudience}\n`;
-                    output += `- フォロワー数: ${post.followers.toLocaleString()}\n\n`;
-                });
-            }
-
-            ocrOutput.textContent = output;
-            ocrSection.classList.remove('hidden');
-        }
-
-        function copyOcrResults() {
-            const ocrOutput = document.getElementById('ocrOutput');
-            const textToCopy = `以下は、TikTokのインサイト画面をOCRで読み取ったテキストです。
-この情報をもとに、次のように分析してください。
-
-【お願いしたいこと】
-1. 表形式に整えて、以下のようなカラムで表示してください：
-- 投稿日
-- 動画の秒数
-- 再生回数
-- 平均視聴時間
-- フル視聴率
-- 一番多いターゲット
-- いいね数
-- 保存数
-- シェア数
-- フォロワー数
-- ENG率
-- 離脱秒数・コメント
-
-2. 各投稿について、保存率・完了率・ENG率の高い順に並べてください。
-3. 上位の投稿の傾向を分析してください（例：尺、冒頭の構成、離脱秒数、ターゲット層など）
-4. 最後に、今後伸ばすための改善提案（3つ）をください。
-
-【OCRで読み取ったインサイト情報】
-
-${ocrOutput.textContent}`;
-
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                alert('プロンプト用テキストをコピーしました！Claudeに貼り付けて分析を依頼してください。');
-            }).catch(err => {
-                console.error('コピーに失敗しました:', err);
-                alert('コピーに失敗しました。テキストを手動で選択してコピーしてください。');
-            });
-        }
-
-        function calculateMetrics(post) {
-            const completionRate = Math.min((post.avgWatchTime / post.videoDuration) * 100, 100);
-            const engagementRate = ((post.likes + post.saves + post.shares) / post.views) * 100;
-            const saveRate = (post.saves / post.views) * 100;
-            const likeRate = (post.likes / post.views) * 100;
-            const shareRate = (post.shares / post.views) * 100;
-            
-            return {
-                ...post,
-                completionRate: completionRate.toFixed(1),
-                engagementRate: engagementRate.toFixed(2),
-                saveRate: saveRate.toFixed(2),
-                likeRate: likeRate.toFixed(2),
-                shareRate: shareRate.toFixed(2)
-            };
-        }
-
-        function analyzeData() {
-            if (postsData.length === 0) {
-                alert('分析するデータがありません');
-                return;
-            }
-
-            const processedData = postsData.map(calculateMetrics);
-            
-            // 保存率、完了率、ENG率の総合スコアでソート
-            processedData.sort((a, b) => {
-                const scoreA = parseFloat(a.saveRate) * 3 + parseFloat(a.completionRate) * 2 + parseFloat(a.engagementRate);
-                const scoreB = parseFloat(b.saveRate) * 3 + parseFloat(b.completionRate) * 2 + parseFloat(b.engagementRate);
-                return scoreB - scoreA;
-            });
-
-            displayResults(processedData);
-            displayTrendAnalysis(processedData);
-            displayRecommendations(processedData);
-            
-            const analysisSection = document.getElementById('analysisResults');
-            analysisSection.classList.add('show');
-        }
-
-        function displayResults(data) {
-            document.getElementById('totalPosts').textContent = data.length;
-            document.getElementById('avgViews').textContent = Math.round(data.reduce((sum, p) => sum + p.views, 0) / data.length).toLocaleString();
-            document.getElementById('avgEngagement').textContent = (data.reduce((sum, p) => sum + parseFloat(p.engagementRate), 0) / data.length).toFixed(1) + '%';
-            document.getElementById('bestSaveRate').textContent = Math.max(...data.map(p => parseFloat(p.saveRate))).toFixed(1) + '%';
-
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = '';
-            
-            data.forEach(post => {
-                const row = tbody.insertRow();
-                row.innerHTML = `
-                    <td>${post.postDate}</td>
-                    <td>${post.videoDuration}秒</td>
-                    <td>${post.views.toLocaleString()}</td>
-                    <td>${post.avgWatchTime}秒</td>
-                    <td>${post.completionRate}%</td>
-                    <td>${post.targetAudience}</td>
-                    <td>${post.likes.toLocaleString()}</td>
-                    <td>${post.saves.toLocaleString()}</td>
-                    <td>${post.shares.toLocaleString()}</td>
-                    <td>${post.engagementRate}%</td>
-                    <td>${post.saveRate}%</td>
-                `;
-            });
-        }
-
-        function displayTrendAnalysis(data) {
-            const trendDiv = document.getElementById('trendAnalysis');
-            const topPosts = data.slice(0, Math.min(3, data.length));
-            
-            let analysis = '';
-            
-            if (topPosts.length > 0) {
-                const avgDuration = topPosts.reduce((sum, p) => sum + p.videoDuration, 0) / topPosts.length;
-                analysis += `<div class="trend-item"><strong>最適な動画尺:</strong> 上位投稿の平均は${avgDuration.toFixed(0)}秒。${avgDuration < 20 ? 'ショート動画' : avgDuration < 40 ? 'ミディアム動画' : 'ロング動画'}が効果的</div>`;
-                
-                const targets = topPosts.map(p => p.targetAudience);
-                const mostFrequentTarget = targets.reduce((a, b, i, arr) => 
-                    arr.filter(v => v === a).length >= arr.filter(v => v === b).length ? a : b
-                );
-                analysis += `<div class="trend-item"><strong>効果的なターゲット層:</strong> ${mostFrequentTarget}の反応が良い傾向</div>`;
-                
-                const avgCompletionRate = topPosts.reduce((sum, p) => sum + parseFloat(p.completionRate), 0) / topPosts.length;
-                analysis += `<div class="trend-item"><strong>高パフォーマンス投稿の完了率:</strong> 平均${avgCompletionRate.toFixed(1)}%（${avgCompletionRate > 70 ? '非常に良好' : avgCompletionRate > 50 ? '良好' : '改善の余地あり'}）</div>`;
-                
-                const avgSaveRate = topPosts.reduce((sum, p) => sum + parseFloat(p.saveRate), 0) / topPosts.length;
-                analysis += `<div class="trend-item"><strong>トップ投稿の保存率:</strong> 平均${avgSaveRate.toFixed(2)}%（業界平均0.5-2%と比較して${avgSaveRate > 2 ? '優秀' : avgSaveRate > 1 ? '良好' : '改善可能'}）</div>`;
-            }
-            
-            trendDiv.innerHTML = analysis;
-        }
-
-        function displayRecommendations(data) {
-            const recDiv = document.getElementById('recommendations');
-            
-            if (data.length === 0) {
-                recDiv.innerHTML = '<p>データが不足しているため、分析できません。</p>';
-                return;
-            }
-            
-            const topPost = data[0];
-            const avgSaveRate = data.reduce((sum, p) => sum + parseFloat(p.saveRate), 0) / data.length;
-            const avgCompletionRate = data.reduce((sum, p) => sum + parseFloat(p.completionRate), 0) / data.length;
-            
-            let recommendations = '';
-            
-            // 動画尺の改善提案
-            if (topPost.videoDuration < 30) {
-                recommendations += `<div class="recommendation">
-                    <h5>1. 動画尺の最適化</h5>
-                    <p>最高パフォーマンスの投稿は${topPost.videoDuration}秒でした。15-30秒の短い動画で、冒頭3秒以内にフックを入れることを推奨します。視聴者の注意を即座に引きつける要素（驚き、疑問、感情的な瞬間）を配置しましょう。</p>
-                </div>`;
-            } else {
-                recommendations += `<div class="recommendation">
-                    <h5>1. コンテンツ密度の向上</h5>
-                    <p>長尺動画（${topPost.videoDuration}秒）でも高パフォーマンスを記録。情報密度を高め、5秒ごとに新しい要素を追加することで視聴維持を図りましょう。テンポの良い編集とカット割りを意識してください。</p>
-                </div>`;
-            }
-            
-            // 保存率向上戦略
-            recommendations += `<div class="recommendation">
-                <h5>2. 保存率向上戦略</h5>
-                <p>現在の平均保存率は${avgSaveRate.toFixed(2)}%です。「保存して後で見る価値」のあるコンテンツ（How-to系、レシピ、ライフハック、名言・格言）を増やし、動画の最後に「保存ボタンを押してね」のCTAを追加しましょう。</p>
-            </div>`;
-            
-            // ターゲット最適化
-            recommendations += `<div class="recommendation">
-                <h5>3. ターゲット層の最適化</h5>
-                <p>最高パフォーマンスのターゲット層「${topPost.targetAudience}」向けのコンテンツ比率を増やしましょう。このセグメントが最もアクティブな時間帯（19-22時）での投稿を心がけ、彼らの関心事や流行を積極的に取り入れてください。</p>
-            </div>`;
-            
-            recDiv.innerHTML = recommendations;
-        }
-
-        function exportToExcel() {
-            if (postsData.length === 0) {
-                alert('エクスポートするデータがありません');
-                return;
-            }
-
-            const processedData = postsData.map(calculateMetrics);
-            
-            // エクセル用データを準備
-            const excelData = processedData.map(post => ({
-                '投稿日': post.postDate,
-                '動画秒数': post.videoDuration,
-                '動画再生回数': post.views,
-                '平均視聴時間': post.avgWatchTime,
-                'フル視聴(%)': post.completionRate,
-                '一番多いターゲット': post.targetAudience,
-                'いいね': post.likes,
-                'いいね率': post.likeRate,
-                '保存': post.saves,
-                '保存率': post.saveRate,
-                'シェア': post.shares,
-                'シェア率': post.shareRate,
-                'ENG率': post.engagementRate,
-                'フォロー数': post.followers,
-                '気になる離脱': '' // 空欄
-            }));
-
-            // ワークブックを作成
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.json_to_sheet(excelData);
-
-            // 列幅を調整
-            const colWidths = [
-                { wch: 12 }, // 投稿日
-                { wch: 10 }, // 動画秒数
-                { wch: 15 }, // 動画再生回数
-                { wch: 15 }, // 平均視聴時間
-                { wch: 12 }, // フル視聴(%)
-                { wch: 18 }, // 一番多いターゲット
-                { wch: 12 }, // いいね
-                { wch: 10 }, // いいね率
-                { wch: 10 }, // 保存
-                { wch: 10 }, // 保存率
-                { wch: 10 }, // シェア
-                { wch: 10 }, // シェア率
-                { wch: 10 }, // ENG率
-                { wch: 12 }, // フォロー数
-                { wch: 15 }  // 気になる離脱
-            ];
-            ws['!cols'] = colWidths;
-
-            // ワークシートを追加
-            XLSX.utils.book_append_sheet(wb, ws, 'TikTok分析結果');
-
-            // ファイル名を生成
-            const today = new Date().toISOString().split('T')[0];
-            const fileName = `TikTok分析結果_${today}.xlsx`;
-
-            // ダウンロード
-            XLSX.writeFile(wb, fileName);
-        }
-
-        function clearAll() {
-            if (confirm('すべてのデータをクリアしますか？')) {
-                postsData = [];
-                uploadedFiles = [];
-                ocrResults = [];
-                uploadedImagesContainer.innerHTML = '';
-                document.getElementById('analysisResults').classList.remove('show');
-                document.getElementById('ocrSection').classList.add('hidden');
-                fileInput.value = '';
-            }
-        }
-    </script>
-</body>
-</html>
+                    document.getElementById('loadingText').textContent = `画像 ${i + 1}/${uploadedFiles.length} を高精度解析中...`;
+                    document.getElementById('progressF
